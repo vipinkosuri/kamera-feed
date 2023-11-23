@@ -1,59 +1,61 @@
-<script>
-	import Counter from './Counter.svelte';
-	import welcome from '$lib/images/svelte-welcome.webp';
-	import welcome_fallback from '$lib/images/svelte-welcome.png';
+<script lang="ts">
+	// import Hls from 'hls.js/dist/hls.min';
+	import { onMount } from 'svelte';
+	// import hlsPlaylist from '$lib/hls-video/prog_index.m3u8';
+
+	let video: HTMLMediaElement;
+
+	onMount(() => {
+		// if (Hls.isSupported()) {
+		// 	const hls = new Hls({
+		// 		debug: true,
+		// 		maxBufferSize: 120,
+		// 		maxBufferLength: 60,
+		// 		maxMaxBufferLength: 60
+		// 	});
+		// 	hls.loadSource('/src/lib/hls-video/prog_index.m3u8');
+		// 	if (video) {
+		// 		hls.attachMedia(video);
+		// 		hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+		// 			video.muted = true;
+		// 			video.play();
+		// 		});
+		// 		// render()
+		// 	}
+		// }
+		var videoSrc = '/src/lib/hls-video/playlist.m3u8';
+		if (Hls.isSupported()) {
+    var hls = new Hls();
+    hls.on(Hls.Events.MEDIA_ATTACHED, function () {
+      console.log('video and hls.js are now bound together !');
+    });
+    hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+      console.log(
+        'manifest loaded, found ' + data.levels.length + ' quality level',
+      );
+    });
+    hls.loadSource('/hls-video/prog_index.m3u8');
+    // bind them together
+    hls.attachMedia(video);
+		// video.play()
+  }
+
+	});
 </script>
 
 <svelte:head>
 	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
 </svelte:head>
 
 <section>
-	<h1>
-		<span class="welcome">
-			<picture>
-				<source srcset={welcome} type="image/webp" />
-				<img src={welcome_fallback} alt="Welcome" />
-			</picture>
-		</span>
-
-		to your new<br />SvelteKit app
-	</h1>
-
-	<h2>
-		try editing <strong>src/routes/+page.svelte</strong>
-	</h2>
-
-	<Counter />
+	<video bind:this={video} controls width="720"/>
 </section>
 
 <style>
 	section {
+		height: 100vh;
 		display: flex;
-		flex-direction: column;
-		justify-content: center;
 		align-items: center;
-		flex: 0.6;
-	}
-
-	h1 {
-		width: 100%;
-	}
-
-	.welcome {
-		display: block;
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
-	}
-
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
+		justify-content: center;
 	}
 </style>
