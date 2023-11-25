@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
-	import { Stage, Layer, Rect } from 'svelte-konva';
+	import { Stage, Group, Layer, Rect } from 'svelte-konva';
+	import { tick } from 'svelte';
 
 	export let section: any;
 
@@ -17,7 +18,7 @@
 		return uuid;
 	}
 
-	for (let index = 0; index < 50; index++) {
+	for (let index = 0; index < 25; index++) {
 		recievedData.push({
 			id: `${Math.floor(Math.random() * 1000)}`,
 			x: Math.random() * 1920,
@@ -48,35 +49,39 @@
 		const konvaElement = (<CustomEvent>e).detail.target;
 		dispatch('uuid', konvaElement.id());
 	}
-	onMount(() => {
+
+	onMount(async () => {
 		recalculatedData = recievedData.map((data) => ({
 			id: create_UUID(),
 			x: (data.x * section.offsetWidth) / 1920,
-			y: (data.y * section.offsetWidth) / 1080,
+			y: (data.y * section.offsetHeight) / 1080,
 			width: data.width,
 			height: data.height
 		}));
+		await tick();
 	});
 </script>
 
 <Stage config={{ width: section.offsetWidth, height: section.offsetHeight }}>
 	<Layer>
-		{#each recalculatedData as data}
-			<Rect
-				config={{
-					x: data.x,
-					y: data.y,
-					width: data.width,
-					height: data.height,
-					opacity: 0.6,
-					fill: 'rgba(255,255,255,0.7)',
-					stroke: 'white',
-					id: data.id
-				}}
-				on:mouseover={handleHover}
-				on:mouseout={handleMouseOut}
-				on:pointerclick={fetchApi}
-			/>
-		{/each}
+		<Group>
+			{#each recalculatedData as data}
+				<Rect
+					config={{
+						x: data.x,
+						y: data.y,
+						width: data.width,
+						height: data.height,
+						opacity: 0.6,
+						fill: 'rgba(255,255,255,0.7)',
+						stroke: 'white',
+						id: data.id
+					}}
+					on:mouseover={handleHover}
+					on:mouseout={handleMouseOut}
+					on:pointerclick={fetchApi}
+				/>
+			{/each}
+		</Group>
 	</Layer>
 </Stage>
