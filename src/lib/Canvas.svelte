@@ -1,18 +1,18 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
-	import { Stage, Group, Layer, Rect } from 'svelte-konva';
-	import { tick } from 'svelte';
+	import { fabric } from 'fabric';
 
 	export let section: any;
-	// let stage;
+	let width = section.offsetWidth;
+	let height = section.offsetHeight;
 
-	// const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 	let recievedData: object[] = [];
 
 	function create_UUID() {
-		var dt = new Date().getTime();
-		var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-			var r = (dt + Math.random() * 16) % 16 | 0;
+		let dt = new Date().getTime();
+		let uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+			let r = (dt + Math.random() * 16) % 16 | 0;
 			dt = Math.floor(dt / 16);
 			return (c == 'x' ? r : (r & 0x3) | 0x8).toString(16);
 		});
@@ -53,67 +53,37 @@
 
 	onMount(async () => {
 		recalculatedData = recievedData.map((data) => ({
-			id: create_UUID(),
-			x: (data.x * section.offsetWidth) / 1920,
-			y: (data.y * section.offsetHeight) / 1080,
+			person_id: create_UUID(),
+			left: (data.x * section.offsetWidth) / 1920,
+			top: (data.y * section.offsetHeight) / 1080,
 			width: data.width,
 			height: data.height
 		}));
-		var width = section.offsetWidth;
-		var height = section.offsetHeight;
 
-		var stage = new Konva.Stage({
-			container: 'container',
-			width: width,
-			height: height
-		});
-
-		var layer = new Konva.Layer();
+		let canvas = new fabric.Canvas('c');
 		recalculatedData.forEach((data) => {
-			var rect1 = new Konva.Rect({
+			let rect = new fabric.Rect({
 				...data,
-				fill: 'green',
-				stroke: 'black',
-				strokeWidth: 4
+				fill: 'white',
+				opacity: 0.7,
+				selectable: false,
+				stroke: 'white'
 			});
-			rect1.on('mouseover', function () {
-				stage.container().style.cursor = 'pointer';
-				rect1.fill('blue');
-				rect1.moveToTop();
+			rect.on('mouseover', function () {
+				rect.bringToFront();
+				rect.set({ fill: 'blue' });
 			});
-			layer.add(rect1);
+			rect.on('mouseout', function () {
+				rect.bringToFront();
+				rect.set({ fill: 'white' });
+			});
+			rect.on('mousedown', function () {
+				console.log();
+				dispatch('uuid', rect.get('person_id'));
+			});
+			canvas.add(rect);
 		});
-
-		// add the shape to the layer
-
-		// add the layer to the stage
-		stage.add(layer);
-		// await tick();
 	});
 </script>
 
-<div id="container" />
-
-<!-- <Stage config={{ width: section.offsetWidth, height: section.offsetHeight }}>
-	<Layer>
-		<Group>
-			{#each recalculatedData as data}
-				<Rect
-					config={{
-						x: data.x,
-						y: data.y,
-						width: data.width,
-						height: data.height,
-						opacity: 0.6,
-						fill: 'rgba(255,255,255,0.7)',
-						stroke: 'white',
-						id: data.id
-					}}
-					on:mouseover={handleHover}
-					on:mouseout={handleMouseOut}
-					on:pointerclick={fetchApi}
-				/>
-			{/each}
-		</Group>
-	</Layer>
-</Stage> -->
+<canvas id="c" style="border:1px solid #ccc" {width} {height} />
