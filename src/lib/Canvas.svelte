@@ -4,6 +4,7 @@
 	import { tick } from 'svelte';
 
 	export let section: any;
+	let stage;
 
 	const dispatch = createEventDispatcher();
 	let recievedData: object[] = [];
@@ -36,6 +37,7 @@
 		stage.container().style.cursor = 'pointer';
 		konvaElement.fill('blue');
 		konvaElement.moveToTop();
+		console.log(stage.getIntersection(stage.getPointerPosition()));
 	}
 
 	function handleMouseOut(e: Event) {
@@ -50,6 +52,10 @@
 		dispatch('uuid', konvaElement.id());
 	}
 
+	function showStageHover() {
+		console.log(stage.getIntersection(stage.getPointerPosition()));
+	}
+
 	onMount(async () => {
 		recalculatedData = recievedData.map((data) => ({
 			id: create_UUID(),
@@ -62,7 +68,11 @@
 	});
 </script>
 
-<Stage config={{ width: section.offsetWidth, height: section.offsetHeight }}>
+<Stage
+	config={{ width: section.offsetWidth, height: section.offsetHeight }}
+	bind:handle={stage}
+	on:mousemove={showStageHover}
+>
 	<Layer>
 		<Group>
 			{#each recalculatedData as data}
