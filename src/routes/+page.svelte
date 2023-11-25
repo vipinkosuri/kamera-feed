@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Hls from 'hls.js/dist/hls.min';
+	import Hls from 'hls.js';
 	import { onMount } from 'svelte';
 
 	let video: HTMLMediaElement;
