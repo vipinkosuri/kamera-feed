@@ -4,9 +4,9 @@
 	import { tick } from 'svelte';
 
 	export let section: any;
-	let stage;
+	// let stage;
 
-	const dispatch = createEventDispatcher();
+	// const dispatch = createEventDispatcher();
 	let recievedData: object[] = [];
 
 	function create_UUID() {
@@ -31,30 +31,25 @@
 
 	let recalculatedData;
 
-	function handleHover(e: Event) {
-		const konvaElement = (<CustomEvent>e).detail.target;
-		const stage = konvaElement.getStage();
-		stage.container().style.cursor = 'pointer';
-		konvaElement.fill('blue');
-		konvaElement.moveToTop();
-		console.log(stage.getIntersection(stage.getPointerPosition()));
-	}
+	// function handleHover(e: Event) {
+	// 	const konvaElement = (<CustomEvent>e).detail.target;
+	// 	const stage = konvaElement.getStage();
+	// 	stage.container().style.cursor = 'pointer';
+	// 	konvaElement.fill('blue');
+	// 	konvaElement.moveToTop();
+	// }
 
-	function handleMouseOut(e: Event) {
-		const konvaElement = (<CustomEvent>e).detail.target;
-		const stage = konvaElement.getStage();
-		stage.container().style.cursor = 'default';
-		konvaElement.fill('white');
-	}
+	// function handleMouseOut(e: Event) {
+	// 	const konvaElement = (<CustomEvent>e).detail.target;
+	// 	const stage = konvaElement.getStage();
+	// 	stage.container().style.cursor = 'default';
+	// 	konvaElement.fill('white');
+	// }
 
-	function fetchApi(e: Event) {
-		const konvaElement = (<CustomEvent>e).detail.target;
-		dispatch('uuid', konvaElement.id());
-	}
-
-	function showStageHover() {
-		console.log(stage.getIntersection(stage.getPointerPosition()));
-	}
+	// function fetchApi(e: Event) {
+	// 	const konvaElement = (<CustomEvent>e).detail.target;
+	// 	dispatch('uuid', konvaElement.id());
+	// }
 
 	onMount(async () => {
 		recalculatedData = recievedData.map((data) => ({
@@ -64,15 +59,42 @@
 			width: data.width,
 			height: data.height
 		}));
-		await tick();
+		var width = section.offsetWidth;
+		var height = section.offsetHeight;
+
+		var stage = new Konva.Stage({
+			container: 'container',
+			width: width,
+			height: height
+		});
+
+		var layer = new Konva.Layer();
+		recalculatedData.forEach((data) => {
+			var rect1 = new Konva.Rect({
+				...data,
+				fill: 'green',
+				stroke: 'black',
+				strokeWidth: 4
+			});
+			rect1.on('mouseover', function () {
+				stage.container().style.cursor = 'pointer';
+				rect1.fill('blue');
+				rect1.moveToTop();
+			});
+			layer.add(rect1);
+		});
+
+		// add the shape to the layer
+
+		// add the layer to the stage
+		stage.add(layer);
+		// await tick();
 	});
 </script>
 
-<Stage
-	config={{ width: section.offsetWidth, height: section.offsetHeight }}
-	bind:handle={stage}
-	on:mousemove={showStageHover}
->
+<div id="container" />
+
+<!-- <Stage config={{ width: section.offsetWidth, height: section.offsetHeight }}>
 	<Layer>
 		<Group>
 			{#each recalculatedData as data}
@@ -94,4 +116,4 @@
 			{/each}
 		</Group>
 	</Layer>
-</Stage>
+</Stage> -->
