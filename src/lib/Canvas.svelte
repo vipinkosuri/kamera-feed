@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 	import { Stage, Layer, Rect } from 'svelte-konva';
 
 	export let section: any;
@@ -17,7 +17,7 @@
 		return uuid;
 	}
 
-	for (let index = 0; index < 25; index++) {
+	for (let index = 0; index < 50; index++) {
 		recievedData.push({
 			id: `${Math.floor(Math.random() * 1000)}`,
 			x: Math.random() * 1920,
@@ -27,13 +27,7 @@
 		});
 	}
 
-	let recalculatedData = recievedData.map((data) => ({
-		id: create_UUID(),
-		x: (data.x * section.offsetWidth) / 1920,
-		y: (data.y * section.offsetWidth) / 1080,
-		width: data.width,
-		height: data.height
-	}));
+	let recalculatedData;
 
 	function handleHover(e: Event) {
 		const konvaElement = (<CustomEvent>e).detail.target;
@@ -54,6 +48,15 @@
 		const konvaElement = (<CustomEvent>e).detail.target;
 		dispatch('uuid', konvaElement.id());
 	}
+	onMount(() => {
+		recalculatedData = recievedData.map((data) => ({
+			id: create_UUID(),
+			x: (data.x * section.offsetWidth) / 1920,
+			y: (data.y * section.offsetWidth) / 1080,
+			width: data.width,
+			height: data.height
+		}));
+	});
 </script>
 
 <Stage config={{ width: section.offsetWidth, height: section.offsetHeight }}>
