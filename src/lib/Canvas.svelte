@@ -78,8 +78,14 @@
 				rect.set({ fill: 'white' });
 			});
 			rect.on('mousedown', function () {
-				console.log();
-				dispatch('uuid', rect.get('person_id'));
+				// dispatch('person', rect.get('person_id'));
+				dispatch('person', {
+					date: '18/11/2023, 5:01:46 PM',
+					camera: 'Auditorium Entrance camera 1',
+					ppi: 24,
+					face: '/face-1.png',
+					body: '/body-1.png'
+				});
 			});
 			canvas.add(rect);
 		});
