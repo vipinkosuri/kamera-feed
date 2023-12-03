@@ -75,8 +75,8 @@
 			playsinline
 			controls
 			bind:this={video}
-			on:pause={() => (showCanvas = true)}
-			on:play={() => (showCanvas = false)}
+			on:pause={() => (!liveMode ? (showCanvas = true) : '')}
+			on:play={() => (!liveMode ? (showCanvas = false) : '')}
 		/>
 		{#if showCanvas}
 			<div class="video_position">
