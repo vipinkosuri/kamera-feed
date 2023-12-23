@@ -140,22 +140,27 @@ aside {
 	gap: 4px;
 	margin-top: 12px;
 }
+
 .disabled-content {
 	pointer-events: none;
 	opacity: 0.5;
 }
+
 .person-images {
 	width: 100%;
 }
+
 .person-image {
 	display: flex;
 	gap: 20px;
 }
+
 .person-image li {
 	flex-grow: 1;
 	flex-basis: 0;
 	min-width: 0;
 }
+
 .no-content {
 	display: flex;
 	gap: 16px;
