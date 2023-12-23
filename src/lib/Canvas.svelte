@@ -1,10 +1,13 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
 	import { fabric } from 'fabric';
+	import sampleImage from '$lib/sc.png';
 
 	export let section: any;
 	let width = section.offsetWidth;
 	let height = section.offsetHeight;
+
+	let faceImage, bodyImage;
 
 	const dispatch = createEventDispatcher();
 	let recievedData: object[] = [];
@@ -52,15 +55,38 @@
 	// }
 
 	onMount(async () => {
-		recalculatedData = recievedData.map((data) => ({
-			person_id: create_UUID(),
-			left: (data.x * section.offsetWidth) / 1920,
-			top: (data.y * section.offsetHeight) / 1080,
-			width: data.width,
-			height: data.height
-		}));
-
+		// recalculatedData =
 		let canvas = new fabric.Canvas('c');
+		let faceCanvas = new fabric.Canvas('face');
+		let bodyCanvas = new fabric.Canvas('body');
+		// 	person_id: create_UUID(),
+		// 	left: (data.x * section.offsetWidth) / 1920,
+		// 	top: (data.y * section.offsetHeight) / 1080,
+		// 	width: data.width,
+		// 	height: data.height
+		// }));
+
+		recalculatedData = [
+			{
+				person_id: create_UUID(),
+				left: (1046 * section.offsetWidth) / 1512,
+				top: (504 * section.offsetHeight) / 853,
+				width: 30,
+				height: 140,
+				face_url: '/face-3.png',
+				body_url: '/body-3.png'
+			},
+			{
+				person_id: create_UUID(),
+				left: (1094 * section.offsetWidth) / 1512,
+				top: (504 * section.offsetHeight) / 853,
+				width: 30,
+				height: 140,
+				face_url: '',
+				body_url: ''
+			}
+		];
+
 		recalculatedData.forEach((data) => {
 			let rect = new fabric.Rect({
 				...data,
@@ -78,18 +104,81 @@
 				rect.set({ fill: 'white' });
 			});
 			rect.on('mousedown', function () {
-				// dispatch('person', rect.get('person_id'));
-				dispatch('person', {
-					date: '18/11/2023, 5:01:46 PM',
-					camera: 'Auditorium Entrance camera 1',
-					ppi: 24,
-					face: '/face-1.png',
-					body: '/body-1.png'
-				});
+				if (rect.get('face_url') !== '' && rect.get('body_url') !== '') {
+					dispatch('person', {
+						id: rect.get('person_id'),
+						date: '18/11/2023, 5:01:46 PM',
+						camera: 'Outdoor camera 1',
+						ppi: 24,
+						face: rect.get('face_url'),
+						body: rect.get('body_url'),
+						detectedTimeFrom: '18/11/2023, 5:01:46 PM',
+						detectedTimeTo: '18/11/2023, 5:03:16 PM'
+					});
+				} else {
+					//get face and body from canvas
+
+					new fabric.Image.fromURL(sampleImage, function (oImg) {
+						oImg.scaleToWidth(1512);
+						oImg.set({
+							left: -1094,
+							top: -504,
+							selectable: false
+						});
+
+						faceCanvas.add(oImg);
+						faceImage = faceCanvas.toDataURL({ format: 'jpeg', width: 35, height: 38 });
+					});
+
+					new fabric.Image.fromURL(sampleImage, function (oImg) {
+						oImg.scaleToWidth(1512);
+						oImg.set({
+							left: -1094,
+							top: -538,
+							selectable: false
+						});
+
+						bodyCanvas.add(oImg);
+						bodyImage = bodyCanvas.toDataURL({ format: 'jpeg', width: 35, height: 170 });
+					});
+
+					setTimeout(() => {
+						dispatch('person', {
+							id: rect.get('person_id'),
+							date: '18/11/2023, 5:01:46 PM',
+							camera: 'Outdoor camera 1',
+							ppi: 24,
+							face: faceImage,
+							body: bodyImage,
+							detectedTimeFrom: '18/11/2023, 5:01:46 PM',
+							detectedTimeTo: '18/11/2023, 5:03:16 PM'
+						});
+					}, 1000);
+				}
 			});
 			canvas.add(rect);
 		});
 	});
 </script>
 
-<canvas id="c" style="border:1px solid #ccc" {width} {height} />
+<canvas id="c" {width} {height} class="detected_boxes" />
+<img src={sampleImage} alt="detected screen" class="detected_image" />
+<canvas id="face" style="display:none" />
+<canvas id="body" style="display:none" />
+
+<style>
+	.detected_boxes {
+		position: absolute;
+		width: 100%;
+		top: 0;
+		left: 0;
+		z-index: 20;
+	}
+	.detected_image {
+		position: absolute;
+		width: 100%;
+		top: 0;
+		left: 0;
+		z-index: 10;
+	}
+</style>

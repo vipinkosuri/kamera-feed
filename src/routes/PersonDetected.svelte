@@ -9,6 +9,15 @@
 	export let personDetected = false;
 	export let liveMode;
 	export let person: {} = {};
+
+	const saveImage = (person: object) => {
+		let savedImages = JSON.parse(localStorage.getItem('savedImages') || '[]');
+
+		if (savedImages.filter((e) => e.id === person.id).length == 0) {
+			savedImages.push(person);
+			localStorage.setItem('savedImages', JSON.stringify(savedImages));
+		}
+	};
 </script>
 
 <div class="container" class:disabled-content={liveMode}>
@@ -54,11 +63,9 @@
 				</ul>
 			</div>
 			<div class="center-content">
-				<Toggle let:on={loading} let:toggle>
-					<Button variant="outline" color="accent" {loading} on:click={toggle} rounded="full"
-						>+ Save Image</Button
-					>
-				</Toggle>
+				<Button variant="outline" color="accent" rounded="full" on:click={() => saveImage(person)}
+					>+ Save Image</Button
+				>
 			</div>
 		{/if}
 	</div>
